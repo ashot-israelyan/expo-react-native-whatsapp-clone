@@ -52,7 +52,7 @@ const Page = () => {
 		setTimeout(() => {
 			router.push(`/verify/${phoneNumber}`);
 			setLoading(false);
-		}, 2000);
+		}, 200);
 	};
 
 	const trySignIn = async () => {};
