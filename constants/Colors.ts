@@ -8,4 +8,5 @@ export default {
   lightGreen: '#DBFFCB',
   red: '#EF0827',
   yellow: '#FCC70B',
+  disabled: '#DCDBE2',
 };
