@@ -4,6 +4,27 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { ClerkProvider } from '@clerk/clerk-expo';
+import * as SecureStore from 'expo-secure-store';
+
+const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+const tokenCache = {
+	async getToken(key: string) {
+		try {
+			return SecureStore.getItemAsync(key);
+		} catch (err) {
+			return null;
+		}
+	},
+	async saveToken(key: string, value: string) {
+		try {
+			return SecureStore.setItemAsync(key, value);
+		} catch (err) {
+			return;
+		}
+	},
+};
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -13,7 +34,7 @@ export {
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+const InitialLayout = () => {
 	const [loaded, error] = useFonts({
 		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
 		...FontAwesome.font,
@@ -34,10 +55,6 @@ export default function RootLayout() {
 		return null;
 	}
 
-	return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
 	return (
 		<Stack>
 			<Stack.Screen name="index" options={{ headerShown: false }} />
@@ -51,4 +68,14 @@ function RootLayoutNav() {
 			/>
 		</Stack>
 	);
-}
+};
+
+const RootLayout = () => {
+	return (
+		<ClerkProvider tokenCache={tokenCache} publishableKey={CLERK_PUBLISHABLE_KEY!}>
+			<InitialLayout />
+		</ClerkProvider>
+	);
+};
+
+export default RootLayout;
