@@ -10,9 +10,7 @@ const Layout = () => {
 					title: 'Settings',
 					headerLargeTitle: true,
 					headerShadowVisible: false,
-					headerStyle: {
-						backgroundColor: Colors.background,
-					},
+					headerStyle: { backgroundColor: Colors.background },
 					headerSearchBarOptions: {
 						placeholder: 'Search',
 					},
@@ -21,3 +19,5 @@ const Layout = () => {
 		</Stack>
 	);
 };
+
+export default Layout;

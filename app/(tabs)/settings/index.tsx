@@ -11,7 +11,10 @@ const Page = () => {
 
 	return (
 		<View style={{ flex: 1, backgroundColor: Colors.background }}>
-			<ScrollView contentInsetAdjustmentBehavior="automatic">
+			<ScrollView
+				contentInsetAdjustmentBehavior="automatic"
+				contentContainerStyle={{ paddingBottom: 40 }}
+			>
 				{Object.entries(Settings).map(([key, items]) => (
 					<View key={key} style={defaultStyles.block}>
 						<FlatList
