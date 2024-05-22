@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -8,6 +8,8 @@ import {
 	useClearByFocusCell,
 } from 'react-native-confirmation-code-field';
 import Colors from '@/constants/Colors';
+import { isClerkAPIResponseError, useSignIn, useSignUp } from '@clerk/clerk-expo';
+import type { PhoneCodeFactor } from '@clerk/types/dist/factors';
 
 const CELL_COUNT = 6;
 
@@ -20,12 +22,71 @@ const Page = () => {
 		value: code,
 		setValue: setCode,
 	});
+	const { signUp, setActive } = useSignUp();
+	const { signIn } = useSignIn();
 
-	const verifyCode = async () => {};
+	const verifyCode = async () => {
+		try {
+			await signUp?.attemptPhoneNumberVerification({
+				code,
+			});
 
-	const verifySignIn = async () => {};
+			await setActive?.({ session: signUp?.createdSessionId });
+		} catch (err) {
+			console.log('error', JSON.stringify(err, null, 2));
+			if (isClerkAPIResponseError(err)) {
+				Alert.alert('Error', err.errors[0].message);
+			}
+		}
+	};
 
-	const resendCode = async () => {};
+	const verifySignIn = async () => {
+		try {
+			await signIn!.attemptFirstFactor({
+				strategy: 'phone_code',
+				code,
+			});
+
+			await setActive!({ session: signIn!.createdSessionId });
+		} catch (err) {
+			console.log('error', JSON.stringify(err, null, 2));
+			if (isClerkAPIResponseError(err)) {
+				Alert.alert('Error', err.errors[0].message);
+			}
+		}
+	};
+
+	const resendCode = async () => {
+		try {
+			if (signin === 'true') {
+				const { supportedFirstFactors } = await signIn!.create({
+					identifier: 'phone',
+				});
+
+				const firstPhoneFactor = supportedFirstFactors.find((factor) => {
+					return factor.strategy === 'phone_code';
+				}) as PhoneCodeFactor | undefined;
+
+				if (!firstPhoneFactor) return;
+
+				const { phoneNumberId } = firstPhoneFactor;
+
+				await signIn!.prepareFirstFactor({
+					strategy: 'phone_code',
+					phoneNumberId,
+				});
+			} else {
+				await signUp!.create({ phoneNumber: phone });
+
+				await signUp!.preparePhoneNumberVerification();
+			}
+		} catch (err) {
+			console.log('error', JSON.stringify(err, null, 2));
+			if (isClerkAPIResponseError(err)) {
+				Alert.alert('Error', err.errors[0].message);
+			}
+		}
+	};
 
 	useEffect(() => {
 		if (code.length === 6) {
@@ -65,7 +126,7 @@ const Page = () => {
 				)}
 			/>
 
-			<TouchableOpacity style={styles.button}>
+			<TouchableOpacity style={styles.button} onPress={resendCode}>
 				<Text style={styles.buttonText}>Didn't receive a verification code?</Text>
 			</TouchableOpacity>
 		</View>
