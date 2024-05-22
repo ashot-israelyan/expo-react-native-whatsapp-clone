@@ -1,28 +1,23 @@
-import { Component, FC, PropsWithChildren, useRef } from 'react';
+import { FC, PropsWithChildren, useRef } from 'react';
 import { Animated, StyleSheet, View, Text } from 'react-native';
 
 import { RectButton } from 'react-native-gesture-handler';
 
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 
-export default class SwipeableRow extends Component<
-	PropsWithChildren<unknown & { onDelete: () => void }>
-> {
-	private renderRightActions = (
-		progress: Animated.AnimatedInterpolation<number>,
-		_dragAnimatedValue: Animated.AnimatedInterpolation<number>,
-	) => (
-		<View
-			style={{
-				width: 300,
-				flexDirection: 'row',
-			}}
-		>
-			{this.renderRightAction('Delete', '#dd2c00', 300, progress)}
-		</View>
-	);
+const SwipeableRow: FC<PropsWithChildren<{ onDelete: () => void }>> = ({ children, onDelete }) => {
+	const swipeableRef = useRef<Swipeable | null>(null);
 
-	private renderRightAction = (
+	const close = () => {
+		swipeableRef.current?.close();
+		onDelete();
+	};
+
+	const onSwipeableOpen = () => {
+		close();
+	};
+
+	const renderRightAction = (
 		text: string,
 		color: string,
 		x: number,
@@ -34,7 +29,7 @@ export default class SwipeableRow extends Component<
 		});
 
 		const pressHandler = () => {
-			this.close();
+			close();
 		};
 
 		return (
@@ -51,37 +46,34 @@ export default class SwipeableRow extends Component<
 		);
 	};
 
-	private swipeableRow?: Swipeable;
+	const renderRightActions = (
+		progress: Animated.AnimatedInterpolation<number>,
+		_dragAnimatedValue: Animated.AnimatedInterpolation<number>,
+	) => (
+		<View
+			style={{
+				width: 300,
+				flexDirection: 'row',
+			}}
+		>
+			{renderRightAction('Delete', '#dd2c00', 300, progress)}
+		</View>
+	);
 
-	private updateRef = (ref: Swipeable) => {
-		this.swipeableRow = ref;
-	};
-	private close = () => {
-		this.swipeableRow?.close();
-		this.props.onDelete();
-	};
-
-	private onSwipeableOpen = () => {
-		this.close();
-	};
-
-	render() {
-		const { children } = this.props;
-		return (
-			<Swipeable
-				ref={this.updateRef}
-				enableTrackpadTwoFingerGesture
-				friction={1.4}
-				overshootRight={false}
-				rightThreshold={140}
-				renderRightActions={this.renderRightActions}
-				onSwipeableOpen={this.onSwipeableOpen}
-			>
-				{children}
-			</Swipeable>
-		);
-	}
-}
+	return (
+		<Swipeable
+			ref={swipeableRef}
+			enableTrackpadTwoFingerGesture
+			friction={1.4}
+			overshootRight={false}
+			rightThreshold={140}
+			renderRightActions={renderRightActions}
+			onSwipeableOpen={onSwipeableOpen}
+		>
+			{children}
+		</Swipeable>
+	);
+};
 
 const styles = StyleSheet.create({
 	actionText: {
@@ -97,3 +89,5 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 });
+
+export default SwipeableRow;
