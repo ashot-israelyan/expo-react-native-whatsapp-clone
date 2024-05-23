@@ -60,15 +60,13 @@ const InitialLayout = () => {
 		if (isLoaded) {
 			const inTabsGroup = segments[0] === '(tabs)';
 
-			console.log('isSignedIn changed', isSignedIn);
-
 			if (isSignedIn && !inTabsGroup) {
 				router.replace('/(tabs)/calls');
 			} else if (!isSignedIn) {
 				router.replace('/');
 			}
 		}
-	}, [isLoaded, isSignedIn]);
+	}, [isLoaded, isSignedIn, router, segments]);
 
 	if (!loaded || !isLoaded) {
 		return <View />;
