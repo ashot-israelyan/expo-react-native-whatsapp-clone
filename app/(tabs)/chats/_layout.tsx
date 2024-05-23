@@ -33,7 +33,7 @@ const Layout = () => {
 							<TouchableOpacity>
 								<Ionicons name="camera-outline" size={30} color={Colors.primary} />
 							</TouchableOpacity>
-							<Link href="/" asChild>
+							<Link href="/(modals)/new-chat" asChild>
 								<TouchableOpacity>
 									<Ionicons name="add-circle" size={30} color={Colors.primary} />
 								</TouchableOpacity>
@@ -42,6 +42,7 @@ const Layout = () => {
 					),
 				}}
 			/>
+			<Stack.Screen name="[id]" />
 		</Stack>
 	);
 };
